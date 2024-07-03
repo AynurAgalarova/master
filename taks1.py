@@ -1,24 +1,27 @@
 import sys
 
-
-def taks1(n, m):
-    circular_array = [i for i in range(1, n + 1)]
+def circular_array_path(n, m):
+    circular_array = list(range(1, n + 1))
     path = []
-    start = 0
 
-    for _ in range(n - 1):
-        start = (start + m - 1) % len(circular_array)
-        path.append(circular_array[start])
-        circular_array.pop(start)
-
-    return ''.join(map(str, path))
-
+    current_index = 0
+    while len(path) < n:
+        path.append(circular_array[current_index])
+        current_index = (current_index + m - 1) % len(circular_array)
+        circular_array.pop(current_index)
+        if circular_array:
+            current_index %= len(circular_array)
+    
+    return path
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        n = int(sys.argv[1])
-        m = int(sys.argv[2])
-        result = taks1(n, m)
-        print(result)
+    if len(sys.argv) != 3:
+        print("Usage: python script.py n m")
     else:
-        print("Usage: python circular_array.py n m")
+        try:
+            n = int(sys.argv[1])
+            m = int(sys.argv[2])
+            result = circular_array_path(n, m)
+            print("".join(map(str, result)))
+        except ValueError:
+            print("Error: Both arguments n and m should be integers.")
