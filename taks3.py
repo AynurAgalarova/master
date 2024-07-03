@@ -1,28 +1,49 @@
 import json
+import sys
 
-def fill_values(test_data, values_data):
-    for test in test_data:
+def read_json_file(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
+
+def write_json_file(data, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def process_reports(values_data, tests_data):
+    # Prepare a dictionary from values.json
+    value_dict = {item['id']: item['value'] for item in values_data}
+
+    # Initialize report structure based on tests.json
+    report_data = tests_data.copy()
+
+    # Fill in 'value' field based on value_dict
+    for test in report_data['tests']:
         test_id = test['id']
-        if test_id in values_data:
-            test['value'] = values_data[test_id]['value']
-        if 'tests' in test:
-            fill_values(test['tests'], values_data)
-    return test_data
+        if test_id in value_dict:
+            test['value'] = value_dict[test_id]
 
-def main(values_file, tests_file, report_file):
-    with open(values_file) as f:
-        values_data = json.load(f)
+    return report_data
 
-    with open(tests_file) as f:
-        tests_data = json.load(f)
+def main():
+    if len(sys.argv) != 4:
+        print("Usage: python program.py values.json tests.json report.json")
+        return
 
-    filled_tests = fill_values(tests_data, values_data)
+    values_file = sys.argv[1]
+    tests_file = sys.argv[2]
+    report_file = sys.argv[3]
 
-    with open(report_file, 'w') as f:
-        json.dump(filled_tests, f, indent=4)
+    # Read data from files
+    values_data = read_json_file(values_file)
+    tests_data = read_json_file(tests_file)
+
+    # Process data to create report
+    report_data = process_reports(values_data, tests_data)
+
+    # Write report data to report.json
+    write_json_file(report_data, report_file)
+    print(f"Report generated successfully in {report_file}")
 
 if __name__ == "__main__":
-    values_file = "values.json"
-    tests_file = "tests.json"
-    report_file = "report.json"
-    main(values_file, tests_file, report_file)
+    main()
