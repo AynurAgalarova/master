@@ -1,40 +1,37 @@
 import sys
 import math
 
-def read_circle(file_path):
-    with open(file_path, 'r') as file:
-        x, y = map(int, file.readline().split())
-        radius = int(file.readline())
-        return x, y, radius
+def read_circle_data(filename):
+    with open(filename, 'r') as f:
+        x, y = map(float, f.readline().strip().split())
+        radius = float(f.readline().strip())
+    return x, y, radius
 
-def read_points(file_path):
+def read_points_data(filename):
     points = []
-    with open(file_path, 'r') as file:
-        for line in file:
-            x, y = map(int, line.split())
-            points.append((x, y))
-        return points
+    with open(filename, 'r') as f:
+        for line in f:
+            if line.strip():
+                x, y = map(float, line.strip().split())
+                points.append((x, y))
+    return points
 
-def point_position(xc, yc, radius, x, y):
-    distance = math.sqrt((x - xc)**2 + (y - yc)**2)
-    if distance == radius:
+def point_position_to_circle(center_x, center_y, radius, point_x, point_y):
+    distance = math.sqrt((point_x - center_x)**2 + (point_y - center_y)**2)
+    if abs(distance - radius) < 1e-9:  # точка лежит на окружности
         return 0
-    elif distance < radius:
+    elif distance < radius:  # точка внутри окружности
         return 1
-    else:
+    else:  
         return 2
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python point_position.py <circle_file> <points_file>")
+        print("Usage: python script.py <circle_file> <points_file>")
         sys.exit(1)
-
+    
     circle_file = sys.argv[1]
     points_file = sys.argv[2]
-
-    circle_x, circle_y, radius = read_circle(circle_file)
-    points = read_points(points_file)
-
-    for point in points:
-        result = point_position(circle_x, circle_y, radius, point[0], point[1])
-        print(result)
+    
+    center_x, center_y, radius = read_circle_data(circle_file)
+    points = read_points_data(points_file)
